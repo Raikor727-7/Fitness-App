@@ -1,0 +1,313 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ titulo }} - {{ aluno.nome }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bg-gradient-primary-custom {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .form-card {
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    }
+    
+    .form-control, .form-select {
+        border-radius: 0.75rem;
+        border: 2px solid #e2e8f0;
+        padding: 0.7rem 1rem;
+        transition: all 0.3s ease;
+        background-color: #fafbfc;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        background-color: white;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .form-label i {
+        color: #667eea;
+        margin-right: 0.4rem;
+    }
+    
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #2d3748;
+        border-left: 4px solid #667eea;
+        padding-left: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .section-title i {
+        color: #667eea;
+        margin-right: 0.5rem;
+    }
+    
+    .info-badge {
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        border-radius: 0.75rem;
+        padding: 0.5rem 1rem;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .btn-cancel {
+        background-color: #f7fafc;
+        border: 2px solid #e2e8f0;
+        color: #4a5568;
+        padding: 0.7rem 1.5rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-cancel:hover {
+        background-color: #edf2f7;
+        border-color: #cbd5e0;
+        transform: translateY(-2px);
+    }
+    
+    .btn-save {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        padding: 0.7rem 2rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    .input-group-custom {
+        position: relative;
+    }
+    
+    .input-group-custom .input-suffix {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #a0aec0;
+        font-size: 0.85rem;
+        font-weight: 500;
+        pointer-events: none;
+    }
+    
+    textarea.form-control {
+        resize: vertical;
+        min-height: 100px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Cabeçalho do aluno -->
+            <div class="card border-0 rounded-4 mb-4 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center flex-wrap gap-3">
+                        <div class="bg-gradient-primary-custom rounded-circle p-3" style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-person fs-1 text-white"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h3 class="mb-1">{{ aluno.nome }}</h3>
+                            <div class="d-flex flex-wrap gap-3 mt-2">
+                                <span class="info-badge">
+                                    <i class="bi bi-calendar text-primary"></i> {{ aluno.idade }} anos
+                                </span>
+                                <span class="info-badge">
+                                    <i class="bi bi-gender-{{ aluno.sexo|lower }} text-primary"></i> {{ aluno.get_sexo_display }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Formulário de avaliação -->
+            <div class="card form-card">
+                <div class="card-header bg-gradient-primary-custom text-white py-3">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-clipboard-data fs-3 me-2"></i>
+                        <div>
+                            <h4 class="mb-0">{{ titulo }}</h4>
+                            <small class="opacity-75">Registro de avaliação física completa</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Dados básicos -->
+                        <div class="mb-4">
+                            <h5 class="section-title">
+                                <i class="bi bi-info-circle"></i> Dados Básicos
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">
+                                        <i class="bi bi-calendar"></i> Data
+                                    </label>
+                                    {{ form.data }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">
+                                        <i class="bi bi-clock"></i> Horário
+                                    </label>
+                                    {{ form.horario }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">
+                                        <i class="bi bi-weight"></i> Massa Corporal (kg)
+                                    </label>
+                                    <div class="input-group-custom">
+                                        {{ form.massa_corporal }}
+                                        <span class="input-suffix">kg</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">
+                                        <i class="bi bi-rulers"></i> Altura (m)
+                                    </label>
+                                    <div class="input-group-custom">
+                                        {{ form.altura }}
+                                        <span class="input-suffix">m</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Circunferências -->
+                        <div class="mb-4">
+                            <h5 class="section-title">
+                                <i class="bi bi-rulers"></i> Circunferências (cm)
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Tórax</label>
+                                    {{ form.circunferencia_torax }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Braço Direito</label>
+                                    {{ form.circunferencia_braco_direito }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Braço Esquerdo</label>
+                                    {{ form.circunferencia_braco_esquerdo }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Cintura</label>
+                                    {{ form.circunferencia_cintura }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Quadril</label>
+                                    {{ form.circunferencia_quadril }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Dobras Cutâneas -->
+                        <div class="mb-4">
+                            <h5 class="section-title">
+                                <i class="bi bi-droplet"></i> Dobras Cutâneas (mm)
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Peitoral</label>
+                                    {{ form.dobra_peitoral }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Axilar Média</label>
+                                    {{ form.dobra_axilar_media }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Tricipital</label>
+                                    {{ form.dobra_tricipital }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Subescapular</label>
+                                    {{ form.dobra_subescapular }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Abdominal</label>
+                                    {{ form.dobra_abdominal }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Suprailíaca</label>
+                                    {{ form.dobra_suprailiaca }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Coxa</label>
+                                    {{ form.dobra_coxa }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Observações -->
+                        <div class="mb-4">
+                            <h5 class="section-title">
+                                <i class="bi bi-chat-text"></i> Observações
+                            </h5>
+                            {{ form.observacoes }}
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="d-flex justify-content-between gap-3">
+                            <a href="{% url 'detalhe_aluno' aluno.id %}" class="btn-cancel">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn-save">
+                                <i class="bi bi-save"></i> Salvar Avaliação
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Adiciona classes aos campos do formulário
+        const formFields = document.querySelectorAll('input, select, textarea');
+        formFields.forEach(field => {
+            if (!field.classList.contains('btn')) {
+                field.classList.add('form-control');
+            }
+        });
+        
+        // Ajusta campos de data
+        const dateFields = document.querySelectorAll('input[type="date"]');
+        dateFields.forEach(field => {
+            field.classList.add('form-control');
+        });
+        
+        // Ajusta campos de hora
+        const timeFields = document.querySelectorAll('input[type="time"]');
+        timeFields.forEach(field => {
+            field.classList.add('form-control');
+        });
+    });
+</script>
+{% endblock %}

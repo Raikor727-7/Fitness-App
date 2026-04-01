@@ -1,0 +1,287 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load fitness_tags %}
+
+{% block title %}Treino de Hoje{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>
+                <i class="bi bi-calendar-check"></i> Treino de Hoje
+            </h2>
+            <p class="text-muted mb-0">
+                Aluno: <strong>{{ aluno.nome }}</strong> | 
+                Sessão: {{ sessao.nome }} |
+                Semana: {{ semana }}/{{ total_semanas }}
+            </p>
+        </div>
+        <span class="badge bg-primary fs-6">{{ hoje|date:"d/m/Y" }}</span>
+    </div>
+
+    <div class="progress mb-4">
+        <div class="progress-bar" role="progressbar" 
+             style="width: {% widthratio semana total_semanas 100 %}%" 
+             aria-valuenow="{{ semana }}" 
+             aria-valuemin="0" 
+             aria-valuemax="{{ total_semanas }}">
+            Semana {{ semana }} de {{ total_semanas }}
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between mt-3">
+        <a href="{% url 'detalhe_aluno' aluno.id %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="auto-save-toggle">
+            <label class="form-check-label" for="auto-save-toggle">
+                Salvar automaticamente (a cada 30s)
+            </label>
+        </div>
+    </div>
+
+
+    <div id="treino-container">
+        {% for exercicio_sessao in exercicios %}
+        <div class="card mb-3" data-exercicio-id="{{ exercicio_sessao.id }}">
+            <div class="card-header bg-light">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-dumbbell"></i> {{ exercicio_sessao.exercicio.nome }}
+                    </h5>
+                    <small class="text-muted">
+                        {{ exercicio_sessao.series }} séries | 
+                        Reps: {{ exercicio_sessao.reps_por_serie|join:", " }} | 
+                        Pausa: {{ exercicio_sessao.pausa_segundos }}s
+                    </small>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Série</th>
+                                <th>Repetições</th>
+                                <th>Carga (kg)</th>
+                                <th>Realizado</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for serie_num in "12345678"|make_list %}
+                                {% if forloop.counter <= exercicio_sessao.series %}
+                                <tr class="serie-row" data-serie="{{ forloop.counter }}">
+                                    <td><strong>{{ forloop.counter }}ª</strong></td>
+                                    <td>
+                                        {% with rep=exercicio_sessao.reps_por_serie|get_item:forloop.counter0 %}
+                                            {{ rep|default:"-" }}
+                                        {% endwith %}
+                                    </td>
+                                    <td>
+                                        <input type="number" 
+                                               class="form-control carga-input" 
+                                               step="0.5" 
+                                               placeholder="kg"
+                                               data-serie="{{ forloop.counter }}"
+                                               style="width: 100px;">
+                                    </td>
+                                    <td>
+                                        <div class="form-check">
+                                            <input class="form-check-input realizado-check" 
+                                                   type="checkbox" 
+                                                   data-serie="{{ forloop.counter }}">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-success salvar-serie" 
+                                                data-serie="{{ forloop.counter }}">
+                                            <i class="bi bi-save"></i> Salvar
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                {% if exercicio_sessao.ultimas_cargas %}
+                <div class="mt-2">
+                    <small class="text-muted">
+                        <i class="bi bi-clock-history"></i> Últimas cargas: 
+                        {% for set in exercicio_sessao.ultimas_cargas %}
+                            {% if set.carga_kg %}
+                                {{ set.carga_kg }}kg 
+                            {% endif %}
+                        {% endfor %}
+                    </small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Nenhum exercício cadastrado para esta sessão.
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="d-flex justify-content-between mt-3">
+        <a href="{% url 'detalhe_aluno' aluno.id %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="auto-save-toggle">
+            <label class="form-check-label" for="auto-save-toggle">
+                Salvar automaticamente (a cada 30s)
+            </label>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function showToast(message, type = 'success') {
+    let toastContainer = document.querySelector('.toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+        document.body.appendChild(toastContainer);
+    }
+    
+    const toastId = 'toast-' + Date.now();
+    const toastHtml = `
+        <div id="${toastId}" class="toast" role="alert" data-bs-autohide="true" data-bs-delay="3000">
+            <div class="toast-header bg-${type} text-white">
+                <strong class="me-auto">FitnessApp</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">${message}</div>
+        </div>
+    `;
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+    const toastElement = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastElement);
+    toast.show();
+    
+    toastElement.addEventListener('hidden.bs.toast', () => toastElement.remove());
+}
+
+async function salvarSerie(btn, data) {
+    try {
+        const originalHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Salvando...';
+        
+        const response = await fetch('/treino/salvar-serie/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-outline-success');
+            btn.innerHTML = '<i class="bi bi-check-lg"></i> Salvo';
+            
+            setTimeout(() => {
+                if (!btn.disabled) return;
+                btn.disabled = false;
+                btn.classList.remove('btn-outline-success');
+                btn.classList.add('btn-success');
+                btn.innerHTML = '<i class="bi bi-save"></i> Salvar';
+            }, 2000);
+            
+            showToast('Série salva!', 'success');
+            return result;
+        } else {
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+            showToast('Erro: ' + (result.error || 'Erro desconhecido'), 'danger');
+            return null;
+        }
+    } catch (error) {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+        console.error('Erro:', error);
+        showToast('Erro de conexão', 'danger');
+        return null;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const botoesSalvar = document.querySelectorAll('.salvar-serie');
+    
+    botoesSalvar.forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const row = this.closest('.serie-row');
+            const exercicioId = row.closest('.card').dataset.exercicioId;
+            const serieNum = this.dataset.serie;
+            const cargaInput = row.querySelector('.carga-input');
+            const realizadoCheck = row.querySelector('.realizado-check');
+            
+            const data = {
+                exercicio_sessao_id: exercicioId,
+                semana: {{ semana }},
+                data: '{{ hoje|date:"Y-m-d" }}',
+                numero_serie: parseInt(serieNum),
+                carga_kg: cargaInput.value ? parseFloat(cargaInput.value) : null,
+                realizado: realizadoCheck.checked
+            };
+            
+            await salvarSerie(this, data);
+        });
+    });
+    
+    // Auto-save
+    const autoSaveToggle = document.getElementById('auto-save-toggle');
+    let autoSaveInterval = null;
+    
+    if (autoSaveToggle) {
+        autoSaveToggle.addEventListener('change', function() {
+            if (this.checked) {
+                autoSaveInterval = setInterval(() => {
+                    document.querySelectorAll('.salvar-serie').forEach(btn => {
+                        const row = btn.closest('.serie-row');
+                        const cargaInput = row.querySelector('.carga-input');
+                        const realizadoCheck = row.querySelector('.realizado-check');
+                        
+                        if (cargaInput.value || realizadoCheck.checked) {
+                            btn.click();
+                        }
+                    });
+                    showToast('Auto-save realizado', 'info');
+                }, 30000);
+            } else {
+                if (autoSaveInterval) clearInterval(autoSaveInterval);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

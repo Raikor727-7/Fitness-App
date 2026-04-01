@@ -1,0 +1,102 @@
+[
+  {
+    "model": "core.exercicio",
+    "pk": 1,
+    "fields": {
+      "nome": "Supino reto",
+      "grupo_muscular": "PEITO",
+      "descricao": "Exercício para peitoral maior",
+      "ativo": true
+    }
+  },
+  {
+    "model": "core.exercicio",
+    "pk": 2,
+    "fields": {
+      "nome": "Puxada frontal",
+      "grupo_muscular": "COSTAS",
+      "descricao": "Exercício para dorsais",
+      "ativo": true
+    }
+  },
+  {
+    "model": "core.exercicio",
+    "pk": 3,
+    "fields": {
+      "nome": "Agachamento",
+      "grupo_muscular": "PERNAS",
+      "descricao": "Exercício para quadríceps e glúteos",
+      "ativo": true
+    }
+  },
+  {
+    "model": "core.exercicio",
+    "pk": 4,
+    "fields": {
+      "nome": "Desenvolvimento",
+      "grupo_muscular": "OMBROS",
+      "descricao": "Exercício para deltoides",
+      "ativo": true
+    }
+  },
+  {
+    "model": "core.exercicio",
+    "pk": 5,
+    "fields": {
+      "nome": "Rosca direta",
+      "grupo_muscular": "BRACOS",
+      "descricao": "Exercício para bíceps",
+      "ativo": true
+    }
+  },
+  {
+    "model": "core.exercicio",
+    "pk": 6,
+    "fields": {
+      "nome": "Tríceps pulley",
+      "grupo_muscular": "BRACOS",
+      "descricao": "Exercício para tríceps",
+      "ativo": true
+    }
+  },
+  {
+    "model": "core.exercicio",
+    "pk": 7,
+    "fields": {
+      "nome": "Leg press",
+      "grupo_muscular": "PERNAS",
+      "descricao": "Exercício para pernas",
+      "ativo": true
+    }
+  },
+  {
+    "model": "core.exercicio",
+    "pk": 8,
+    "fields": {
+      "nome": "Cadeira extensora",
+      "grupo_muscular": "PERNAS",
+      "descricao": "Exercício para quadríceps",
+      "ativo": true
+    }
+  },
+  {
+    "model": "core.exercicio",
+    "pk": 9,
+    "fields": {
+      "nome": "Mesa flexora",
+      "grupo_muscular": "PERNAS",
+      "descricao": "Exercício para isquiotibiais",
+      "ativo": true
+    }
+  },
+  {
+    "model": "core.exercicio",
+    "pk": 10,
+    "fields": {
+      "nome": "Panturrilha",
+      "grupo_muscular": "PERNAS",
+      "descricao": "Exercício para panturrilhas",
+      "ativo": true
+    }
+  }
+]

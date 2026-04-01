@@ -1,0 +1,289 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ titulo }} - {{ aluno.nome }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bg-gradient-meso {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+    
+    .meso-card {
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    }
+    
+    .form-control, .form-select {
+        border-radius: 0.75rem;
+        border: 2px solid #e2e8f0;
+        padding: 0.7rem 1rem;
+        transition: all 0.3s ease;
+        background-color: #fafbfc;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #11998e;
+        box-shadow: 0 0 0 3px rgba(17, 153, 142, 0.1);
+        background-color: white;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .form-label i {
+        color: #11998e;
+        margin-right: 0.4rem;
+    }
+    
+    .info-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        padding: 1rem;
+    }
+    
+    .preview-card {
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+        border-radius: 1rem;
+        padding: 1rem;
+        border-left: 4px solid #11998e;
+    }
+    
+    .freq-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: white;
+        border-radius: 2rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .btn-cancel {
+        background-color: #f7fafc;
+        border: 2px solid #e2e8f0;
+        color: #4a5568;
+        padding: 0.7rem 1.5rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-cancel:hover {
+        background-color: #edf2f7;
+        border-color: #cbd5e0;
+        transform: translateY(-2px);
+    }
+    
+    .btn-save-meso {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        border: none;
+        padding: 0.7rem 2rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        color: white;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(17, 153, 142, 0.3);
+    }
+    
+    .btn-save-meso:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(17, 153, 142, 0.4);
+    }
+    
+    .alert-info-custom {
+        background: linear-gradient(135deg, #e6f7ff 0%, #bae7ff 100%);
+        border: none;
+        border-radius: 0.75rem;
+        padding: 1rem;
+    }
+    
+    textarea.form-control {
+        resize: vertical;
+        min-height: 80px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Cabeçalho do aluno -->
+            <div class="card border-0 rounded-4 mb-4 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center flex-wrap gap-3">
+                        <div class="bg-gradient-meso rounded-circle p-3" style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-calendar-week fs-1 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-1">{{ aluno.nome }}</h3>
+                            <p class="text-muted mb-0">
+                                <i class="bi bi-dumbbell"></i> Planejamento de Mesociclo de Treinamento
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Formulário Mesociclo -->
+            <div class="card meso-card">
+                <div class="card-header bg-gradient-meso text-white py-3">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-calendar-week fs-3 me-2"></i>
+                        <div>
+                            <h4 class="mb-0">{{ titulo }}</h4>
+                            <small class="opacity-75">Defina a frequência semanal e o período do treinamento</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="post" id="mesocicloForm">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="bi bi-calendar"></i> Data de Início
+                                </label>
+                                {{ form.data_inicio }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="bi bi-calendar-range"></i> Semanas Planejadas
+                                </label>
+                                {{ form.semanas_planejadas }}
+                                <small class="text-muted">Duração do mesociclo em semanas</small>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label">
+                                    <i class="bi bi-arrow-repeat"></i> Frequência Semanal
+                                </label>
+                                {{ form.tipo }}
+                                <small class="text-muted">Quantos treinos por semana?</small>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label">
+                                    <i class="bi bi-chat-text"></i> Observações
+                                </label>
+                                {{ form.observacoes }}
+                            </div>
+                        </div>
+                        
+                        <!-- Preview do planejamento -->
+                        <div class="preview-card mb-3" id="previewCard" style="display: none;">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="bi bi-info-circle-fill text-success"></i>
+                                <strong class="text-success">Resumo do Planejamento</strong>
+                            </div>
+                            <div id="previewContent"></div>
+                        </div>
+                        
+                        <div class="alert alert-info-custom mt-3">
+                            <div class="d-flex gap-2">
+                                <i class="bi bi-magic fs-4"></i>
+                                <div>
+                                    <strong>Treinos gerados automaticamente!</strong>
+                                    <p class="mb-0 small">Após salvar, os treinos serão gerados automaticamente baseados na frequência escolhida, distribuídos igualmente durante a semana.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="d-flex justify-content-between gap-3">
+                            <a href="{% url 'detalhe_aluno' aluno.id %}" class="btn-cancel">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn-save-meso">
+                                <i class="bi bi-save"></i> Criar Mesociclo
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Adiciona classes aos campos
+        const formFields = document.querySelectorAll('input, select, textarea');
+        formFields.forEach(field => {
+            if (!field.classList.contains('btn')) {
+                field.classList.add('form-control');
+            }
+        });
+        
+        // Preview do planejamento
+        const dataInicio = document.querySelector('#id_data_inicio');
+        const semanas = document.querySelector('#id_semanas_planejadas');
+        const tipo = document.querySelector('#id_tipo');
+        const previewCard = document.getElementById('previewCard');
+        const previewContent = document.getElementById('previewContent');
+        
+        const frequencias = {
+            '2': '2 treinos por semana',
+            '3': '3 treinos por semana',
+            '4': '4 treinos por semana',
+            '5': '5 treinos por semana',
+            '6': '6 treinos por semana',
+            '7': '7 treinos por semana'
+        };
+        
+        function atualizarPreview() {
+            const inicio = dataInicio.value;
+            const semanasVal = semanas.value;
+            const tipoVal = tipo.value;
+            
+            if (inicio && semanasVal && tipoVal) {
+                const data = new Date(inicio);
+                const dataFim = new Date(data);
+                dataFim.setDate(data.getDate() + (parseInt(semanasVal) * 7));
+                
+                previewContent.innerHTML = `
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <small class="text-muted">📅 Início</small>
+                            <div class="fw-bold">${data.toLocaleDateString('pt-BR')}</div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">📅 Término</small>
+                            <div class="fw-bold">${dataFim.toLocaleDateString('pt-BR')}</div>
+                        </div>
+                        <div class="col-12 mt-2">
+                            <small class="text-muted">🏋️ Frequência</small>
+                            <div class="fw-bold">${frequencias[tipoVal] || 'Não definido'}</div>
+                        </div>
+                        <div class="col-12 mt-2">
+                            <small class="text-muted">📊 Total de sessões</small>
+                            <div class="fw-bold">${parseInt(semanasVal) * parseInt(tipoVal)} treinos</div>
+                        </div>
+                    </div>
+                `;
+                previewCard.style.display = 'block';
+            } else {
+                previewCard.style.display = 'none';
+            }
+        }
+        
+        if (dataInicio) dataInicio.addEventListener('change', atualizarPreview);
+        if (semanas) semanas.addEventListener('input', atualizarPreview);
+        if (tipo) tipo.addEventListener('change', atualizarPreview);
+        
+        // Ajusta campos de data
+        const dateFields = document.querySelectorAll('input[type="date"]');
+        dateFields.forEach(field => {
+            field.classList.add('form-control');
+        });
+    });
+</script>
+{% endblock %}

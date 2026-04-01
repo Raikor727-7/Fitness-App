@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-4">Dashboard</h2>
+        </div>
+        
+        <!-- Cards -->
+        <div class="col-md-4 mb-3">
+            <div class="card bg-primary text-white hover-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Total de Alunos</h6>
+                            <h2 class="display-4">{{ total_alunos }}</h2>
+                        </div>
+                        <i class="bi bi-people fs-1"></i>
+                    </div>
+                    <a href="{% url 'lista_alunos' %}" class="text-white text-decoration-none">
+                        Ver todos <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card bg-success text-white hover-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Treinos Hoje</h6>
+                            <h2 class="display-4">{{ treinos_hoje }}</h2>
+                        </div>
+                        <i class="bi bi-calendar-check fs-1"></i>
+                    </div>
+                    <a href="{% url 'treino_dia' %}" class="text-white text-decoration-none">
+                        Registrar treino <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card bg-info text-white hover-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Avaliações no Mês</h6>
+                            <h2 class="display-4">{{ avaliacoes_mes }}</h2>
+                        </div>
+                        <i class="bi bi-clipboard-data fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Gráficos -->
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up me-2"></i> Evolução dos Alunos
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="evolucaoChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Alunos Recentes -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clock-history me-2"></i> Alunos Recentes
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Idade</th>
+                                    <th>Última Avaliação</th>
+                                    <th>Mesociclo Ativo</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for aluno in alunos_recentes %}
+                                <tr>
+                                    <td>
+                                        <i class="bi bi-person-circle me-2"></i>
+                                        {{ aluno.nome }}
+                                    </td>
+                                    <td>{{ aluno.idade }} anos</td>
+                                    <td>
+                                        {% with ultima_avaliacao=aluno.avaliacoes.first %}
+                                            {% if ultima_avaliacao %}
+                                                {{ ultima_avaliacao.data|date:"d/m/Y" }}
+                                                <br>
+                                                <small class="text-muted">
+                                                    {{ ultima_avaliacao.massa_corporal }}kg | 
+                                                    {{ ultima_avaliacao.percentual_gordura }}% gordura
+                                                </small>
+                                            {% else %}
+                                                <span class="text-muted">Nenhuma</span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </td>
+                                    <td>
+                                        {% with mesociclo=aluno.mesociclo_ativo %}
+                                            {% if mesociclo %}
+                                                <span class="badge bg-success">{{ mesociclo.get_tipo_display }}</span>
+                                                <br>
+                                                <small>Início: {{ mesociclo.data_inicio|date:"d/m/Y" }}</small>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Inativo</span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'detalhe_aluno' aluno.id %}" class="btn btn-outline-primary">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a href="{% url 'treino_dia' %}?aluno_id={{ aluno.id }}" class="btn btn-outline-success">
+                                                <i class="bi bi-calendar-check"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">
+                                        <i class="bi bi-info-circle"></i> Nenhum aluno cadastrado.
+                                        <a href="{% url 'criar_aluno' %}">Cadastrar primeiro aluno</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.hover-card {
+    transition: transform 0.3s ease;
+}
+.hover-card:hover {
+    transform: translateY(-5px);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('evolucaoChart').getContext('2d');
+    
+    // Buscar dados agregados de todos os alunos
+    fetch('/api/graficos/geral/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.labels && data.labels.length > 0) {
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.labels,
+                        datasets: [
+                            {
+                                label: 'Peso Médio (kg)',
+                                data: data.pesos_medios,
+                                borderColor: 'rgb(75, 192, 192)',
+                                backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                                tension: 0.3,
+                                fill: true
+                            },
+                            {
+                                label: '% Gordura Médio',
+                                data: data.percentuais_medios,
+                                borderColor: 'rgb(255, 99, 132)',
+                                backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                                tension: 0.3,
+                                fill: true
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { position: 'top' }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                title: { display: true, text: 'Valores' }
+                            }
+                        }
+                    }
+                });
+            } else {
+                mostrarDadosExemplo();
+            }
+        })
+        .catch(() => mostrarDadosExemplo());
+    
+    function mostrarDadosExemplo() {
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Out', 'Nov', 'Dez', 'Jan', 'Fev', 'Mar'],
+                datasets: [
+                    {
+                        label: 'Peso Médio (kg)',
+                        data: [82.5, 81.2, 80.1, 79.0, 78.2, 77.5],
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.3
+                    },
+                    {
+                        label: '% Gordura Médio',
+                        data: [23.5, 22.8, 22.1, 21.3, 20.8, 20.2],
+                        borderColor: 'rgb(255, 99, 132)',
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: true }
+        });
+    }
+});
+</script>
+{% endblock %}

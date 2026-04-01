@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ titulo }} - {{ aluno.nome }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bg-gradient-iet {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    
+    .iet-card {
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    }
+    
+    .form-control, .form-select {
+        border-radius: 0.75rem;
+        border: 2px solid #e2e8f0;
+        padding: 0.7rem 1rem;
+        transition: all 0.3s ease;
+        background-color: #fafbfc;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #4facfe;
+        box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        background-color: white;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .form-label i {
+        color: #4facfe;
+        margin-right: 0.4rem;
+    }
+    
+    .info-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        padding: 1rem;
+    }
+    
+    .vo2-card {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        border-radius: 1rem;
+        padding: 1rem;
+        color: white;
+        text-align: center;
+    }
+    
+    .vo2-card h3 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    
+    .btn-cancel {
+        background-color: #f7fafc;
+        border: 2px solid #e2e8f0;
+        color: #4a5568;
+        padding: 0.7rem 1.5rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-cancel:hover {
+        background-color: #edf2f7;
+        border-color: #cbd5e0;
+        transform: translateY(-2px);
+    }
+    
+    .btn-save-iet {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        border: none;
+        padding: 0.7rem 2rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        color: white;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(79, 172, 254, 0.3);
+    }
+    
+    .btn-save-iet:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
+    }
+    
+    .formula-badge {
+        background: #e6f7ff;
+        border-left: 4px solid #4facfe;
+        padding: 1rem;
+        border-radius: 0.75rem;
+    }
+    
+    textarea.form-control {
+        resize: vertical;
+        min-height: 80px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Cabeçalho do aluno -->
+            <div class="card border-0 rounded-4 mb-4 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center flex-wrap gap-3">
+                        <div class="bg-gradient-iet rounded-circle p-3" style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-heart-pulse fs-1 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-1">{{ aluno.nome }}</h3>
+                            <p class="text-muted mb-0">
+                                <i class="bi bi-graph-up"></i> Teste Incremental em Esteira - VO₂ Máximo
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Formulário IET -->
+            <div class="card iet-card">
+                <div class="card-header bg-gradient-iet text-white py-3">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-graph-up fs-3 me-2"></i>
+                        <div>
+                            <h4 class="mb-0">{{ titulo }}</h4>
+                            <small class="opacity-75">Cálculo automático do VO₂ máximo (Fórmula de Mayhew)</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="post" id="ietForm">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="bi bi-calendar"></i> Data do Teste
+                                </label>
+                                {{ form.data }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="bi bi-speedometer2"></i> Velocidade Inicial (km/h)
+                                </label>
+                                {{ form.velocidade_inicial }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="bi bi-lightning-charge"></i> Velocidade Máxima (km/h)
+                                </label>
+                                {{ form.velocidade_maxima }}
+                                <small class="text-muted">Velocidade máxima atingida no teste</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="bi bi-stopwatch"></i> Duração do Teste
+                                </label>
+                                {{ form.duracao_teste }}
+                                <small class="text-muted">Formato: HH:MM:SS</small>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label">
+                                    <i class="bi bi-chat-text"></i> Observações
+                                </label>
+                                {{ form.observacoes }}
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="d-flex justify-content-between gap-3">
+                            <a href="{% url 'detalhe_aluno' aluno.id %}" class="btn-cancel">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn-save-iet">
+                                <i class="bi bi-save"></i> Salvar Teste
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Adiciona classes aos campos
+        const formFields = document.querySelectorAll('input, select, textarea');
+        formFields.forEach(field => {
+            if (!field.classList.contains('btn')) {
+                field.classList.add('form-control');
+            }
+        });
+        
+        // Cálculo automático do VO2 Max
+        const velocidadeMaxima = document.querySelector('#id_velocidade_maxima');
+        const vo2Value = document.getElementById('vo2Value');
+        
+        if (velocidadeMaxima) {
+            velocidadeMaxima.addEventListener('input', calcularVO2);
+        }
+        
+        // Ajusta campos de data e hora
+        const dateFields = document.querySelectorAll('input[type="date"]');
+        dateFields.forEach(field => {
+            field.classList.add('form-control');
+        });
+        
+        const timeFields = document.querySelectorAll('input[type="time"]');
+        timeFields.forEach(field => {
+            field.classList.add('form-control');
+        });
+    });
+</script>
+{% endblock %}

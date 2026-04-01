@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Importar Exercícios{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-gradient-success text-white rounded-top-4 py-3">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-file-excel fs-3 me-2"></i>
+                        <h4 class="mb-0">Importar Exercícios</h4>
+                    </div>
+                    <p class="mb-0 mt-2 small opacity-75">
+                        Importe exercícios de uma planilha Excel (.xlsx, .xls)
+                    </p>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Arquivo Excel</label>
+                            <input type="file" name="arquivo" class="form-control" accept=".xlsx,.xls" required>
+                            <small class="text-muted">Formatos aceitos: .xlsx, .xls</small>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Formato da planilha:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li>Coluna A: Nome do exercício</li>
+                                <li>Coluna B: Grupo muscular (PEITO, COSTAS, PERNAS, OMBROS, BRACOS, ABDOMEN, CARDIO, OUTROS)</li>
+                                <li>Coluna C: Descrição (opcional)</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between gap-2 mt-4">
+                            <a href="{% url 'lista_exercicios' %}" class="btn btn-outline-secondary px-4">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-success px-5">
+                                <i class="bi bi-upload"></i> Importar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="bi bi-download"></i> Template de exemplo
+                    </h6>
+                    <p class="card-text small">
+                        Baixe o modelo de planilha para preencher com seus exercícios.
+                    </p>
+                    <button class="btn btn-sm btn-outline-primary" onclick="baixarTemplate()">
+                        <i class="bi bi-file-earmark-excel"></i> Baixar template (.xlsx)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-gradient-success {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+</style>
+
+{% block extra_js %}
+<script>
+function baixarTemplate() {
+    // Dados do template
+    const dados = [
+        ['Nome do Exercício', 'Grupo Muscular', 'Descrição'],
+        ['Supino reto', 'PEITO', 'Exercício para peitoral maior'],
+        ['Puxada frontal', 'COSTAS', 'Exercício para dorsais'],
+        ['Agachamento', 'PERNAS', 'Exercício para quadríceps e glúteos'],
+        ['Desenvolvimento', 'OMBROS', 'Exercício para deltoides'],
+        ['Rosca direta', 'BRACOS', 'Exercício para bíceps'],
+        ['Tríceps pulley', 'BRACOS', 'Exercício para tríceps']
+    ];
+    
+    // Converter para CSV e salvar como .xlsx (na verdade CSV com extensão xlsx)
+    const csv = dados.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+    const blob = new Blob(["\uFEFF" + csv], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.setAttribute('download', 'template_exercicios.xlsx');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
+</script>
+{% endblock %}
+{% endblock %}
